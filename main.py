@@ -5,6 +5,7 @@ PaperSearchService.
 """
 from __future__ import annotations
 
+import argparse
 import logging
 import sys
 from contextlib import asynccontextmanager
@@ -26,6 +27,8 @@ from core.service import PaperSearchService
 log = logging.getLogger(__name__)
 
 DB_PATH = os.getenv("DB_PATH", "./data/arxiv.db")
+DEFAULT_HOST = os.getenv("HOST", "127.0.0.1")
+DEFAULT_PORT = int(os.getenv("PORT", "8000"))
 
 
 @asynccontextmanager
@@ -54,7 +57,37 @@ app = FastAPI(title="arxiv-paper-mcp", lifespan=lifespan)
 app.include_router(router)
 app.mount("/mcp", mcp.http_app(transport="streamable-http"))
 
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        description="Run the local arXiv FastAPI + FastMCP server.",
+    )
+    parser.add_argument(
+        "--host",
+        default=DEFAULT_HOST,
+        help=f"Host interface to bind to (default: {DEFAULT_HOST})",
+    )
+    parser.add_argument(
+        "--port",
+        type=int,
+        default=DEFAULT_PORT,
+        help=f"Port to bind to (default: {DEFAULT_PORT})",
+    )
+    parser.add_argument(
+        "--reload",
+        action="store_true",
+        help="Enable uvicorn auto-reload for local development.",
+    )
+    return parser.parse_args()
+
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run("main:app", host="127.0.0.1", port=8000, log_level="info")
+    args = parse_args()
+    uvicorn.run(
+        "main:app",
+        host=args.host,
+        port=args.port,
+        log_level="info",
+        reload=args.reload,
+    )

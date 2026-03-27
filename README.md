@@ -44,6 +44,15 @@ python -m scripts.build_index --jsonl ./data/arxiv-metadata-oai-snapshot.json --
 python main.py
 ```
 
+Useful flags:
+
+```bash
+python main.py --help
+python main.py --port 9000
+python main.py --host 0.0.0.0 --port 9000
+python main.py --reload
+```
+
 ## API basics
 
 - Health: `GET /health`
