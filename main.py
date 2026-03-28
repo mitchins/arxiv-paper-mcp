@@ -55,7 +55,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="arxiv-paper-mcp", lifespan=lifespan)
 app.include_router(router)
-app.mount("/mcp", mcp.http_app(transport="streamable-http"))
+app.mount("/mcp", mcp.http_app(path="/", transport="streamable-http"))
 
 
 def parse_args() -> argparse.Namespace:
