@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 import sqlite3
 from pathlib import Path
 
@@ -33,12 +34,28 @@ class PaperRepository:
 
     # -- lifecycle -----------------------------------------------------------
 
-    def connect(self) -> None:
-        self._conn = sqlite3.connect(self._db_path, check_same_thread=False)
+    def _connect_readonly_immutable(self) -> None:
+        readonly_uri = f"file:{self._db_path}?mode=ro&immutable=1"
+        self._conn = sqlite3.connect(readonly_uri, uri=True, check_same_thread=False)
         self._conn.row_factory = sqlite3.Row
-        self._conn.execute("PRAGMA journal_mode = WAL")
-        self._conn.execute("PRAGMA synchronous = NORMAL")
+        self._conn.execute("PRAGMA query_only = ON")
         self._conn.execute("PRAGMA temp_store = MEMORY")
+
+    def connect(self) -> None:
+        if os.getenv("ARXIV_DB_IMMUTABLE", "").lower() in {"1", "true", "yes"}:
+            self._connect_readonly_immutable()
+            return
+
+        try:
+            self._conn = sqlite3.connect(self._db_path, check_same_thread=False)
+            self._conn.row_factory = sqlite3.Row
+            self._conn.execute("PRAGMA journal_mode = WAL")
+            self._conn.execute("PRAGMA synchronous = NORMAL")
+            self._conn.execute("PRAGMA temp_store = MEMORY")
+            return
+        except sqlite3.OperationalError:
+            # SMB/CIFS mounts can fail read-write/WAL setup; retry read-only.
+            self._connect_readonly_immutable()
 
     def close(self) -> None:
         if self._conn:
