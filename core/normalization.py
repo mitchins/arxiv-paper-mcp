@@ -14,6 +14,8 @@ _ARXIV_ID_RE = re.compile(
     re.IGNORECASE,
 )
 
+_FTS_TOKEN_RE = re.compile(r"[A-Za-z0-9._]+")
+
 
 def normalize_arxiv_id(raw: str) -> str | None:
     """Normalize an arXiv ID string.
@@ -31,8 +33,13 @@ def normalize_arxiv_id(raw: str) -> str | None:
 
 
 def normalize_query(raw: str) -> str:
-    """Lightly clean a search query for FTS5.
+    """Normalize free text into a safe FTS5 MATCH query.
 
-    Strips excess whitespace.  Returns the cleaned string (may be empty).
+    Converts user input into quoted terms joined by ``AND`` so punctuation
+    (including ``-``) is treated as text separators rather than FTS operators.
+    Returns an empty string when no searchable tokens remain.
     """
-    return " ".join(raw.split())
+    tokens = _FTS_TOKEN_RE.findall(raw)
+    if not tokens:
+        return ""
+    return " AND ".join(f'"{token}"' for token in tokens)
