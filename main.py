@@ -30,6 +30,9 @@ DB_PATH = os.getenv("DB_PATH", "./data/arxiv.db")
 DEFAULT_HOST = os.getenv("HOST", "127.0.0.1")
 DEFAULT_PORT = int(os.getenv("PORT", "8000"))
 
+# Expose MCP at /mcp and reuse this app instance for lifespan integration.
+mcp_app = mcp.http_app(path="/", transport="streamable-http")
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -47,15 +50,16 @@ async def lifespan(app: FastAPI):
     init_routes(service)
     init_mcp(service)
 
-    log.info("Server ready – DB: %s", db)
-    yield
+    async with mcp_app.lifespan(mcp_app):
+        log.info("Server ready – DB: %s", db)
+        yield
 
     repo.close()
 
 
 app = FastAPI(title="arxiv-paper-mcp", lifespan=lifespan)
 app.include_router(router)
-app.mount("/mcp", mcp.http_app(path="/", transport="streamable-http"))
+app.mount("/mcp", mcp_app)
 
 
 def parse_args() -> argparse.Namespace:

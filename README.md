@@ -68,6 +68,12 @@ python main.py --reload
 {"arxiv_id": "arXiv:2301.12345v2"}
 ```
 
+## MCP endpoint
+
+- Streamable HTTP MCP endpoint: `/mcp/`
+- Example local URL: `http://127.0.0.1:8000/mcp/`
+- Example LAN URL: `http://192.168.1.26:8010/mcp/`
+
 ## Kaggle auth note
 
 You must authenticate Kaggle before download:
