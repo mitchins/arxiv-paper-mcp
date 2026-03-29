@@ -40,11 +40,11 @@ ARXIV_DB_HOST_PATH=/absolute/path/to/arxiv.db ARXIV_CONFIG_HOST_PATH=$PWD/config
 
 ```mermaid
 flowchart LR
-  A[Host arxiv.db] -->|bind ro| B[/data/arxiv.db]
-  C[Host config dir] -->|bind ro| D[/config]
-  B --> E[arxiv-paper-mcp container]
+  A["Host arxiv.db"] -->|"bind ro"| B["/data/arxiv.db"]
+  C["Host config dir"] -->|"bind ro"| D["/config"]
+  B --> E["arxiv-paper-mcp container"]
   D --> E
-  E --> F[HTTP API :8000]
+  E --> F["HTTP API :8000"]
 ```
 
 To build from source (development), see [docs/development.md](docs/development.md)
