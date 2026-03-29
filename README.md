@@ -68,6 +68,27 @@ python main.py --reload
 {"arxiv_id": "arXiv:2301.12345v2"}
 ```
 
+## Jargon expansion
+
+Optional jargon-aware query expansion can be enabled with:
+
+```bash
+ARXIV_ENABLE_JARGON_EXPANSION=1 python main.py
+```
+
+When enabled and `ARXIV_JARGON_GLOSSARY` is not set, the server will prefer:
+
+1. `jargon_glossary.json`
+2. `benchmarks/queries/jargon_glossary.v2.json`
+
+To force a specific glossary file:
+
+```bash
+ARXIV_ENABLE_JARGON_EXPANSION=1 \
+ARXIV_JARGON_GLOSSARY=benchmarks/queries/jargon_glossary.v2.json \
+python main.py
+```
+
 ## MCP endpoint
 
 - Streamable HTTP MCP endpoint: `/mcp/`
