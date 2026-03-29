@@ -4,31 +4,30 @@ FastAPI + FastMCP search service over arXiv metadata using SQLite FTS5.
 
 ## Recommended run path (Docker)
 
-Use your existing SQLite file as a read-only mount.
+Pre-built images are published to GHCR for `linux/amd64` and `linux/arm64`.
+No build step is needed.
 
 ```bash
-export ARXIV_DB_HOST_PATH=/Volumes/data-2/deploy/arxiv-mcp/data/arxiv.db
+export ARXIV_DB_HOST_PATH=/path/to/arxiv.db
 export ARXIV_CONFIG_HOST_PATH=$PWD/config
-bash scripts/dev_up.sh
+docker compose pull          # pull latest from GHCR
+docker compose up -d --wait
 ```
 
-Stop local Docker services:
+Stop:
 
 ```bash
 bash scripts/dev_down.sh
 ```
 
-Manual equivalent:
+Validate after first start:
 
-Published image platforms:
-
-- `linux/amd64`
-- `linux/arm64`
 ```bash
-docker compose build
-docker compose up -d --wait
 python scripts/smoke_runtime.py --endpoint http://127.0.0.1:8000 --iterations 7 --query "transformer" --search-timeout 180 --startup-wait 60 --warmup
 ```
+
+To build from source (development), see [docs/development.md](docs/development.md)
+or run `bash scripts/dev_up.sh` which builds locally and runs smoke tests.
 
 ## API quick check
 

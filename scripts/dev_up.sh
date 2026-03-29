@@ -7,8 +7,11 @@ cd "$ROOT_DIR"
 : "${ARXIV_DB_HOST_PATH:?Set ARXIV_DB_HOST_PATH to a readable host sqlite path}"
 export ARXIV_CONFIG_HOST_PATH="${ARXIV_CONFIG_HOST_PATH:-$ROOT_DIR/config}"
 
-docker compose build
-docker compose up -d --wait
+COMPOSE_FILES="-f docker-compose.yml -f docker-compose.build.yml"
+# shellcheck disable=SC2086
+docker compose $COMPOSE_FILES build
+# shellcheck disable=SC2086
+docker compose $COMPOSE_FILES up -d --wait
 
 PYTHON_BIN="python3"
 if [[ -x "$ROOT_DIR/.venv/bin/python" ]]; then
