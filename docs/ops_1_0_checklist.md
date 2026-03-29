@@ -23,7 +23,7 @@ docker compose build
 2. Start service
 
 ```bash
-docker compose up -d
+docker compose up -d --wait
 ```
 
 3. Verify health
@@ -35,7 +35,7 @@ curl -fsS http://127.0.0.1:8000/health
 4. Run smoke/perf check
 
 ```bash
-python scripts/smoke_runtime.py --endpoint http://127.0.0.1:8000 --iterations 7 --query "transformer" --search-timeout 180 --warmup
+python scripts/smoke_runtime.py --endpoint http://127.0.0.1:8000 --iterations 7 --query "transformer" --search-timeout 180 --startup-wait 60 --warmup
 ```
 
 ## Performance Gate (Pre-Release)

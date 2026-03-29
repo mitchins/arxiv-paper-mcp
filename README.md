@@ -145,7 +145,7 @@ Build and run with compose:
 ```bash
 export ARXIV_DB_HOST_PATH=/Volumes/data-2/deploy/arxiv-mcp/data/arxiv.db
 docker compose build
-docker compose up -d
+docker compose up -d --wait
 ```
 
 Health check:
@@ -177,7 +177,7 @@ python scripts/smoke_runtime.py --endpoint http://127.0.0.1:8000 --iterations 7 
 For cold starts or slower environments, add:
 
 ```bash
-python scripts/smoke_runtime.py --endpoint http://127.0.0.1:8000 --iterations 7 --query "transformer" --search-timeout 180 --warmup
+python scripts/smoke_runtime.py --endpoint http://127.0.0.1:8000 --iterations 7 --query "transformer" --search-timeout 180 --startup-wait 60 --warmup
 ```
 
 ## 1.0 operations guide

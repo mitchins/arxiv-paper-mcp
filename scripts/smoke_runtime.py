@@ -5,6 +5,7 @@ import json
 import statistics
 import time
 import urllib.request
+from urllib.error import URLError
 
 
 def get_json(url: str, timeout: float = 10.0):
@@ -23,6 +24,23 @@ def post_json(url: str, payload: dict, timeout: float = 30.0):
         return json.loads(resp.read())
 
 
+def wait_for_health(url: str, timeout_s: float, interval_s: float) -> dict:
+    deadline = time.time() + max(1.0, timeout_s)
+    last_exc: Exception | None = None
+    while time.time() < deadline:
+        try:
+            health = get_json(url, timeout=max(1.0, min(5.0, interval_s)))
+            if health.get("status") == "ok":
+                return health
+        except (URLError, TimeoutError, ConnectionResetError) as exc:
+            last_exc = exc
+        time.sleep(max(0.1, interval_s))
+
+    if last_exc is not None:
+        raise RuntimeError(f"health did not become ready before timeout: {last_exc}") from last_exc
+    raise RuntimeError("health did not become ready before timeout")
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Basic runtime smoke + latency checks")
     parser.add_argument("--endpoint", default="http://127.0.0.1:8000")
@@ -30,6 +48,8 @@ def main() -> int:
     parser.add_argument("--limit", type=int, default=10)
     parser.add_argument("--query", default="transformer")
     parser.add_argument("--health-timeout", type=float, default=10.0)
+    parser.add_argument("--startup-wait", type=float, default=30.0)
+    parser.add_argument("--health-interval", type=float, default=0.5)
     parser.add_argument("--search-timeout", type=float, default=90.0)
     parser.add_argument("--warmup", action="store_true", help="Run one warmup search before timed iterations")
     args = parser.parse_args()
@@ -37,9 +57,11 @@ def main() -> int:
     health_url = args.endpoint.rstrip("/") + "/health"
     search_url = args.endpoint.rstrip("/") + "/search"
 
-    health = get_json(health_url, timeout=max(1.0, args.health_timeout))
-    if health.get("status") != "ok":
-        raise RuntimeError(f"health check failed: {health}")
+    health = wait_for_health(
+        health_url,
+        timeout_s=max(args.health_timeout, args.startup_wait),
+        interval_s=max(0.1, args.health_interval),
+    )
 
     if args.warmup:
         post_json(
