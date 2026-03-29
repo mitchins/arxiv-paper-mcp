@@ -2,9 +2,6 @@
 
 FastAPI + FastMCP search service over arXiv metadata using SQLite FTS5.
 
-## What is included
-
-
 ## Recommended run path (Docker)
 
 Use your existing SQLite file as a read-only mount.
