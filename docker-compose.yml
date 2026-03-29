@@ -1,0 +1,30 @@
+services:
+  arxiv-mcp:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: arxiv-paper-mcp:local
+    container_name: arxiv-paper-mcp
+    environment:
+      HOST: 0.0.0.0
+      PORT: 8000
+      DB_PATH: /data/arxiv.db
+      ARXIV_DB_IMMUTABLE: "1"
+      ARXIV_DEV_MAX_LIMIT: "1000"
+      ARXIV_ENABLE_JARGON_EXPANSION: "1"
+      ARXIV_ENABLE_BROAD_QUERY_ROUTING: "0"
+      # Optional: ARXIV_JARGON_GLOSSARY=/app/jargon_glossary.json
+    ports:
+      - "8000:8000"
+    volumes:
+      - type: bind
+        source: ./data
+        target: /data
+        read_only: true
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:8000/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+    restart: unless-stopped

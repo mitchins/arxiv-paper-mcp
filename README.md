@@ -135,3 +135,48 @@ python -m scripts.benchmark_harness \
 Naive metric in v1:
 
 - Overlap@k = how many reference IDs are also in local top-k for each query.
+
+## Docker deployment
+
+This repo includes a Docker-first deployment baseline for 1.0.
+
+Build and run with compose:
+
+```bash
+docker compose build
+docker compose up -d
+```
+
+Health check:
+
+```bash
+curl -fsS http://127.0.0.1:8000/health
+```
+
+Default container profile keeps search on the frozen production path:
+
+- `ARXIV_ENABLE_JARGON_EXPANSION=1`
+- `ARXIV_ENABLE_BROAD_QUERY_ROUTING=0`
+
+The compose file mounts `./data` as read-only at `/data`, and the service uses
+`DB_PATH=/data/arxiv.db`.
+
+## Runtime smoke/perf check
+
+Run a quick runtime check (health + repeated search latency):
+
+```bash
+python scripts/smoke_runtime.py --endpoint http://127.0.0.1:8000 --iterations 7 --query "transformer"
+```
+
+For cold starts or slower environments, add:
+
+```bash
+python scripts/smoke_runtime.py --endpoint http://127.0.0.1:8000 --iterations 7 --query "transformer" --search-timeout 180 --warmup
+```
+
+## 1.0 operations guide
+
+For deployment, performance gates, and update runbook, see:
+
+- `docs/ops_1_0_checklist.md`
