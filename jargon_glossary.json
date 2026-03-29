@@ -1,0 +1,314 @@
+{
+  "mechanistic interpretability": {
+    "aliases": ["mech_interp", "mech interpret", "mechanistic interp"],
+    "canonical": "mechanistic interpretability"
+  },
+  "sparse autoencoder": {
+    "aliases": ["sae", "sparse autoencoders"],
+    "canonical": "sparse autoencoder"
+  },
+  "activation patching": {
+    "aliases": ["activation_patching", "patching"],
+    "canonical": "activation patching"
+  },
+  "circuits": {
+    "aliases": ["circuits", "neural circuits", "feature circuits"],
+    "canonical": "circuits"
+  },
+  "superposition": {
+    "aliases": ["superposition", "feature superposition"],
+    "canonical": "superposition"
+  },
+  "reinforcement learning from human feedback": {
+    "aliases": ["rlhf", "rl from human feedback"],
+    "canonical": "reinforcement learning from human feedback"
+  },
+  "direct preference optimization": {
+    "aliases": ["dpo", "direct preference opt"],
+    "canonical": "direct preference optimization"
+  },
+  "kahneman-tversky optimization": {
+    "aliases": ["kto", "k t o"],
+    "canonical": "kahneman-tversky optimization"
+  },
+  "proximal policy optimization": {
+    "aliases": ["ppo", "proximal policy"],
+    "canonical": "proximal policy optimization"
+  },
+  "reinforcement learning from ai feedback": {
+    "aliases": ["rlaif", "ai feedback"],
+    "canonical": "reinforcement learning from ai feedback"
+  },
+  "process reward model": {
+    "aliases": ["prm", "process reward"],
+    "canonical": "process reward model"
+  },
+  "outcome reward model": {
+    "aliases": ["orm", "outcome reward"],
+    "canonical": "outcome reward model"
+  },
+  "reward hacking": {
+    "aliases": ["reward_hacking", "reward hacking"],
+    "canonical": "reward hacking"
+  },
+  "speculative decoding": {
+    "aliases": ["spec_dec", "speculative", "speculative decoding"],
+    "canonical": "speculative decoding"
+  },
+  "key-value cache": {
+    "aliases": ["kv_cache", "kv cache", "inference cache"],
+    "canonical": "key-value cache"
+  },
+  "flashattention": {
+    "aliases": ["flash_attn", "flash attention"],
+    "canonical": "flashattention"
+  },
+  "mixture of experts": {
+    "aliases": ["moe", "mixture of experts", "experts"],
+    "canonical": "mixture of experts"
+  },
+  "quantization": {
+    "aliases": ["quantization", "int8 quantization", "llm quantization"],
+    "canonical": "quantization"
+  },
+  "gptq quantization": {
+    "aliases": ["gptq", "gptq quantization"],
+    "canonical": "gptq quantization"
+  },
+  "activation-aware weight quantization": {
+    "aliases": ["awq", "activation aware quantization"],
+    "canonical": "activation-aware weight quantization"
+  },
+  "retrieval-augmented generation": {
+    "aliases": ["rag", "retrieval aug", "retrieval augmented generation"],
+    "canonical": "retrieval-augmented generation"
+  },
+  "hypothetical document embeddings": {
+    "aliases": ["hyde", "hypothetical document", "hyde embeddings"],
+    "canonical": "hypothetical document embeddings"
+  },
+  "reciprocal rank fusion": {
+    "aliases": ["rrf", "reciprocal rank fusion"],
+    "canonical": "reciprocal rank fusion"
+  },
+  "contextualized late interaction bert": {
+    "aliases": ["colbert", "late interaction", "colbert retrieval"],
+    "canonical": "contextualized late interaction bert"
+  },
+  "dense passage retrieval": {
+    "aliases": ["dpr", "dense retrieval", "dense passage"],
+    "canonical": "dense passage retrieval"
+  },
+  "low-rank adaptation": {
+    "aliases": ["lora", "low rank adaptation", "lora fine tuning"],
+    "canonical": "low-rank adaptation"
+  },
+  "quantized low-rank adaptation": {
+    "aliases": ["qlora", "quantized lora", "quantized low rank adaptation"],
+    "canonical": "quantized low-rank adaptation"
+  },
+  "parameter-efficient fine-tuning": {
+    "aliases": ["peft", "parameter efficient fine tuning", "peft training"],
+    "canonical": "parameter-efficient fine-tuning"
+  },
+  "model-agnostic meta-learning": {
+    "aliases": ["maml", "meta learning", "model agnostic meta learning"],
+    "canonical": "model-agnostic meta-learning"
+  },
+  "continual learning": {
+    "aliases": ["continual_learning", "continual learning", "lifelong learning"],
+    "canonical": "continual learning"
+  },
+  "curriculum learning": {
+    "aliases": ["curriculum_learning", "curriculum learning"],
+    "canonical": "curriculum learning"
+  },
+  "state space model": {
+    "aliases": ["ssm", "state space model", "state-space model"],
+    "canonical": "state space model"
+  },
+  "mamba": {
+    "aliases": ["mamba", "selective ssm", "mamba model"],
+    "canonical": "mamba state space model"
+  },
+  "receptance weighted key value": {
+    "aliases": ["rwkv", "receptance weighted key value", "rwkv model"],
+    "canonical": "receptance weighted key value"
+  },
+  "vision transformer": {
+    "aliases": ["vit", "vision transformer"],
+    "canonical": "vision transformer"
+  },
+  "contrastive language-image pre-training": {
+    "aliases": ["clip", "contrastive language image pretraining", "clip model"],
+    "canonical": "contrastive language-image pre-training"
+  },
+  "vision-language model": {
+    "aliases": ["vlm", "vision language model", "vision-language model"],
+    "canonical": "vision-language model"
+  },
+  "neural radiance field": {
+    "aliases": ["nerf", "neural radiance field", "nerf model"],
+    "canonical": "neural radiance field"
+  },
+  "segment anything model": {
+    "aliases": ["sam", "segment anything", "segment anything model"],
+    "canonical": "segment anything model"
+  },
+  "gaussian splatting": {
+    "aliases": ["gaussian_splatting", "gaussian splatting"],
+    "canonical": "gaussian splatting"
+  },
+  "chain-of-thought reasoning": {
+    "aliases": ["cot", "chain of thought", "chain-of-thought"],
+    "canonical": "chain-of-thought reasoning"
+  },
+  "tree-of-thought reasoning": {
+    "aliases": ["tot", "tree of thought", "tree-of-thought"],
+    "canonical": "tree-of-thought reasoning"
+  },
+  "react agent": {
+    "aliases": ["react", "reason and act", "reason+act", "react agent"],
+    "canonical": "react agent"
+  },
+  "reflexion": {
+    "aliases": ["reflexion", "reflexion agent", "reflection"],
+    "canonical": "reflexion"
+  },
+  "program-aided language model": {
+    "aliases": ["pal", "program aided language", "program aided"],
+    "canonical": "program-aided language model"
+  },
+  "self-consistency": {
+    "aliases": ["self_consistency", "self consistency"],
+    "canonical": "self-consistency"
+  },
+  "jailbreaking": {
+    "aliases": ["jailbreak", "jailbreaking"],
+    "canonical": "jailbreaking"
+  },
+  "red teaming": {
+    "aliases": ["red_teaming", "red teaming"],
+    "canonical": "red teaming"
+  },
+  "prompt injection": {
+    "aliases": ["prompt_injection", "prompt injection"],
+    "canonical": "prompt injection"
+  },
+  "backdoor attack": {
+    "aliases": ["backdoor", "backdoor attack"],
+    "canonical": "backdoor attack"
+  },
+  "watermarking": {
+    "aliases": ["watermarking", "watermark"],
+    "canonical": "watermarking"
+  },
+  "graph neural network": {
+    "aliases": ["gnn", "graph neural network", "graph nn"],
+    "canonical": "graph neural network"
+  },
+  "graph convolutional network": {
+    "aliases": ["gcn", "graph convolutional network"],
+    "canonical": "graph convolutional network"
+  },
+  "graph attention network": {
+    "aliases": ["gat", "graph attention network"],
+    "canonical": "graph attention network"
+  },
+  "graphsage": {
+    "aliases": ["sage", "graphsage"],
+    "canonical": "graphsage"
+  },
+  "tabtransformer": {
+    "aliases": ["tab_transformer", "tabtransformer"],
+    "canonical": "tabtransformer"
+  },
+  "ft-transformer": {
+    "aliases": ["ft_transformer", "ft transformer"],
+    "canonical": "ft-transformer"
+  },
+  "gradient boosted decision tree": {
+    "aliases": ["gbdt", "gradient boosted decision tree", "gradient boosting"],
+    "canonical": "gradient boosted decision tree"
+  },
+  "resnet": {
+    "aliases": ["resnet", "residual network"],
+    "canonical": "resnet"
+  },
+  "temporal fusion transformer": {
+    "aliases": ["tft", "temporal fusion transformer", "temporal fusion"],
+    "canonical": "temporal fusion transformer"
+  },
+  "temporal convolutional network": {
+    "aliases": ["tcn", "temporal convolutional network"],
+    "canonical": "temporal convolutional network"
+  },
+  "recurrent neural network": {
+    "aliases": ["rnn", "recurrent neural network"],
+    "canonical": "recurrent neural network"
+  },
+  "long short-term memory": {
+    "aliases": ["lstm", "long short term memory"],
+    "canonical": "long short-term memory"
+  },
+  "gated recurrent unit": {
+    "aliases": ["gru", "gated recurrent unit"],
+    "canonical": "gated recurrent unit"
+  },
+  "auto gpt": {
+    "aliases": ["autogpt", "auto gpt"],
+    "canonical": "auto gpt"
+  },
+  "babyagi": {
+    "aliases": ["baby_agi", "babyagi"],
+    "canonical": "babyagi"
+  },
+  "llamaindex": {
+    "aliases": ["lama_index", "llamaindex"],
+    "canonical": "llamaindex"
+  },
+  "langchain": {
+    "aliases": ["langchain", "lang chain"],
+    "canonical": "langchain"
+  },
+  "memory augmented gpt": {
+    "aliases": ["memgpt", "memory gpt", "mem gpt"],
+    "canonical": "memory augmented gpt"
+  },
+  "code llama": {
+    "aliases": ["codellama", "code llama"],
+    "canonical": "code llama"
+  },
+  "starcoder": {
+    "aliases": ["starcoder", "star coder"],
+    "canonical": "starcoder"
+  },
+  "openai codex": {
+    "aliases": ["codex", "openai codex"],
+    "canonical": "openai codex"
+  },
+  "alphacode": {
+    "aliases": ["alpha_code", "alphacode"],
+    "canonical": "alphacode"
+  },
+  "google codey": {
+    "aliases": ["codey", "google codey"],
+    "canonical": "google codey"
+  },
+  "differential privacy": {
+    "aliases": ["differential_privacy", "differential privacy"],
+    "canonical": "differential privacy"
+  },
+  "homomorphic encryption": {
+    "aliases": ["homomorphic_encryption", "homomorphic encryption"],
+    "canonical": "homomorphic encryption"
+  },
+  "secure multi-party computation": {
+    "aliases": ["secure_mpc", "secure multiparty computation"],
+    "canonical": "secure multi-party computation"
+  },
+  "federated learning": {
+    "aliases": ["federated_learning", "federated learning"],
+    "canonical": "federated learning"
+  }
+}

@@ -68,6 +68,27 @@ python main.py --reload
 {"arxiv_id": "arXiv:2301.12345v2"}
 ```
 
+## Jargon expansion
+
+Optional jargon-aware query expansion can be enabled with:
+
+```bash
+ARXIV_ENABLE_JARGON_EXPANSION=1 python main.py
+```
+
+When enabled and `ARXIV_JARGON_GLOSSARY` is not set, the server will prefer:
+
+1. `jargon_glossary.json`
+2. `benchmarks/queries/jargon_glossary.v2.json`
+
+To force a specific glossary file:
+
+```bash
+ARXIV_ENABLE_JARGON_EXPANSION=1 \
+ARXIV_JARGON_GLOSSARY=benchmarks/queries/jargon_glossary.v2.json \
+python main.py
+```
+
 ## MCP endpoint
 
 - Streamable HTTP MCP endpoint: `/mcp/`
@@ -114,3 +135,98 @@ python -m scripts.benchmark_harness \
 Naive metric in v1:
 
 - Overlap@k = how many reference IDs are also in local top-k for each query.
+
+## Docker deployment
+
+This repo includes a Docker-first deployment baseline for 1.0.
+
+Persistent container layout:
+
+- `/app`: application code baked into the image
+- `/data`: persistent data mount for SQLite database files
+- `/config`: persistent config mount for `.env`, glossary, and future operator-managed config
+
+Build and run with compose:
+
+```bash
+export ARXIV_DB_HOST_PATH=/Volumes/data-2/deploy/arxiv-mcp/data/arxiv.db
+export ARXIV_CONFIG_HOST_PATH=$PWD/config
+docker compose build
+docker compose up -d --wait
+```
+
+Health check:
+
+```bash
+curl -fsS http://127.0.0.1:8000/health
+```
+
+Default container profile keeps search on the frozen production path:
+
+- `ARXIV_ENABLE_JARGON_EXPANSION=1`
+- `ARXIV_ENABLE_BROAD_QUERY_ROUTING=0`
+
+The compose file mounts a single SQLite file read-only into the container:
+
+- Host path: `${ARXIV_DB_HOST_PATH:-./data/arxiv.db}`
+- Container path: `/data/arxiv.db`
+
+This keeps development disk usage low by reusing your existing DB file.
+
+Optional persistent config mount:
+
+- Host path: `${ARXIV_CONFIG_HOST_PATH:-./config}`
+- Container path: `/config`
+
+Runtime config loading order:
+
+1. `/config/.env`
+2. repo-local `.env`
+
+If present, `/config/jargon_glossary.json` is preferred over the repo copy.
+
+## Runtime smoke/perf check
+
+Run a quick runtime check (health + repeated search latency):
+
+```bash
+python scripts/smoke_runtime.py --endpoint http://127.0.0.1:8000 --iterations 7 --query "transformer"
+```
+
+For cold starts or slower environments, add:
+
+```bash
+python scripts/smoke_runtime.py --endpoint http://127.0.0.1:8000 --iterations 7 --query "transformer" --search-timeout 180 --startup-wait 60 --warmup
+```
+
+## 1.0 operations guide
+
+For deployment, performance gates, and update runbook, see:
+
+- `docs/ops_1_0_checklist.md`
+
+## Development helper
+
+One-command Docker bring-up + smoke test:
+
+```bash
+export ARXIV_DB_HOST_PATH=/Volumes/data-2/deploy/arxiv-mcp/data/arxiv.db
+export ARXIV_CONFIG_HOST_PATH=$PWD/config
+bash scripts/dev_up.sh
+```
+
+## CI and release
+
+GitHub Actions now cover:
+
+- lint + tests on push/PR to `main` and `master`
+- Docker image build on push/PR to `main` and `master`
+- GHCR publish on version tags (`v*`) or manual dispatch
+
+Expected GHCR image name:
+
+- `ghcr.io/<owner>/arxiv-paper-mcp`
+
+Repo setup and release notes:
+
+- `docs/github_release_setup.md`

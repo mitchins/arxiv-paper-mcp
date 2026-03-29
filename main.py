@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import argparse
 import logging
+import os
 import sys
 from contextlib import asynccontextmanager
 from pathlib import Path
@@ -14,15 +15,25 @@ from pathlib import Path
 from dotenv import load_dotenv
 from fastapi import FastAPI
 
-load_dotenv()
 
-import os
+def _load_runtime_env() -> None:
+    config_dir = Path(os.getenv("ARXIV_CONFIG_DIR", "/config"))
+    config_env = config_dir / ".env"
+    if config_env.exists():
+        load_dotenv(config_env, override=False)
 
-from api.mcp_tools import init_mcp, mcp
-from api.routes import init_routes, router
-from core.cache import TTLCache
-from core.repository import PaperRepository
-from core.service import PaperSearchService
+    project_env = Path(__file__).resolve().parent / ".env"
+    if project_env.exists():
+        load_dotenv(project_env, override=False)
+
+
+_load_runtime_env()
+
+from api.mcp_tools import init_mcp, mcp  # noqa: E402
+from api.routes import init_routes, router  # noqa: E402
+from core.cache import TTLCache  # noqa: E402
+from core.repository import PaperRepository  # noqa: E402
+from core.service import PaperSearchService  # noqa: E402
 
 log = logging.getLogger(__name__)
 
