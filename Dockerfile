@@ -13,6 +13,8 @@ COPY requirements.txt ./requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
+RUN mkdir -p /config \
+    && cp /app/jargon_glossary.json /config/jargon_glossary.json
 
 ENV HOST=0.0.0.0 \
     PORT=8000 \

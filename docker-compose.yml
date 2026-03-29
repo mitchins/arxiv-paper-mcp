@@ -11,7 +11,6 @@ services:
       ARXIV_DEV_MAX_LIMIT: "1000"
       ARXIV_ENABLE_JARGON_EXPANSION: "1"
       ARXIV_ENABLE_BROAD_QUERY_ROUTING: "0"
-      # Optional: ARXIV_JARGON_GLOSSARY=/app/jargon_glossary.json
     ports:
       - "8000:8000"
     volumes:
@@ -19,6 +18,7 @@ services:
         source: ${ARXIV_DB_HOST_PATH:-./data/arxiv.db}
         target: /data/arxiv.db
         read_only: true
+      # Leave ./config empty unless you want to override .env or glossary files.
       - type: bind
         source: ${ARXIV_CONFIG_HOST_PATH:-./config}
         target: /config

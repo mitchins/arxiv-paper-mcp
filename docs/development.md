@@ -41,7 +41,7 @@ Container layout:
 
 - /app: application code
 - /data/arxiv.db: mounted SQLite database (read-only recommended)
-- /config: mounted runtime config (optional, read-only recommended)
+- /config: bundled runtime config defaults plus optional mounted overrides
 
 Mount-first run example (no exported shell vars required):
 
@@ -49,21 +49,27 @@ Mount-first run example (no exported shell vars required):
 docker run -d --name arxiv-paper-mcp \
   -p 8000:8000 \
   --mount type=bind,src=/absolute/path/to/arxiv.db,dst=/data/arxiv.db,readonly \
-  --mount type=bind,src=$PWD/config,dst=/config,readonly \
   -e DB_PATH=/data/arxiv.db \
   ghcr.io/mitchins/arxiv-paper-mcp:latest
 ```
 
+The image already includes the default jargon glossary in `/config`, so the
+extra config mount is only needed when overriding `.env` or
+`jargon_glossary.json`.
+
 Compose knobs (if using docker compose):
 
 - ARXIV_DB_HOST_PATH: host path to sqlite file
-- ARXIV_CONFIG_HOST_PATH: host path to config directory
+- ARXIV_CONFIG_HOST_PATH: optional host path to config directory override
 
 Compose one-liner without export:
 
 ```bash
-ARXIV_DB_HOST_PATH=/absolute/path/to/arxiv.db ARXIV_CONFIG_HOST_PATH=$PWD/config docker compose up -d --wait
+ARXIV_DB_HOST_PATH=/absolute/path/to/arxiv.db docker compose up -d --wait
 ```
+
+The stock compose file mounts `./config` to `/config`. Leaving `./config` empty
+is fine; use it only when overriding `.env` or `jargon_glossary.json`.
 
 Local source build (used by scripts/dev_up.sh):
 
@@ -83,7 +89,7 @@ Glossary priority when jargon expansion is enabled and no explicit override is
 provided:
 
 1. /config/jargon_glossary.json
-2. jargon_glossary.json
+2. /app/jargon_glossary.json in the container, or repo-local `jargon_glossary.json` when running from source
 3. benchmarks/queries/jargon_glossary.v2.json
 
 ## Benchmarking workflow

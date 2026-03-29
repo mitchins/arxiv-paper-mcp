@@ -17,7 +17,6 @@ Reference: `docs/production_freeze_20260329.md`
 
 ```bash
 export ARXIV_DB_HOST_PATH=/Volumes/data-2/deploy/arxiv-mcp/data/arxiv.db
-export ARXIV_CONFIG_HOST_PATH=$PWD/config
 docker compose build
 ```
 
@@ -36,7 +35,7 @@ curl -fsS http://127.0.0.1:8000/health
 4. Run smoke/perf check
 
 ```bash
-python scripts/smoke_runtime.py --endpoint http://127.0.0.1:8000 --iterations 7 --query "transformer" --search-timeout 180 --startup-wait 60 --warmup
+python3 scripts/smoke_runtime.py --endpoint http://127.0.0.1:8000 --iterations 7 --query "transformer" --search-timeout 180 --startup-wait 60 --warmup
 ```
 
 ## Performance Gate (Pre-Release)
