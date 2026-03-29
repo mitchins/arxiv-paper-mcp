@@ -1,9 +1,6 @@
 services:
   arxiv-mcp:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    image: arxiv-paper-mcp:local
+    image: ghcr.io/mitchins/arxiv-paper-mcp:latest
     container_name: arxiv-paper-mcp
     environment:
       HOST: 0.0.0.0

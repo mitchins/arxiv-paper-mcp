@@ -1,0 +1,12 @@
+# Development override: build from source instead of pulling from GHCR.
+# Usage:
+#   docker compose -f docker-compose.yml -f docker-compose.build.yml build
+#   docker compose -f docker-compose.yml -f docker-compose.build.yml up -d --wait
+#
+# dev_up.sh uses this automatically.
+services:
+  arxiv-mcp:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: arxiv-paper-mcp:local
