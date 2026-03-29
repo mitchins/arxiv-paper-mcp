@@ -67,3 +67,35 @@ Both variants produced the same result:
 - `broad_macro_hit_rate=0.700`
 
 Decision: keep this mode non-default and non-rollout (below guardrail).
+
+## Final B-Avenue Sweep (Comprehensive)
+
+Ran 11 variants (control, MMR baselines, and multiple bounded-fusion settings)
+using `scripts/sweep_b_variants.py` against the same truth set.
+
+Summary:
+
+| Variant | macro | weighted | broad_macro |
+|---|---:|---:|---:|
+| control_broad_off | 0.820 | 0.875 | 0.750 |
+| mmr_l085 | 0.750 | 0.766 | 0.400 |
+| mmr_l075 | 0.720 | 0.719 | 0.250 |
+| mmr_l065 | 0.720 | 0.719 | 0.250 |
+| fusion_ref | 0.810 | 0.859 | 0.700 |
+| fusion_lex_heavy | 0.810 | 0.859 | 0.700 |
+| fusion_balanced | 0.810 | 0.859 | 0.700 |
+| fusion_wide_no_anchor_gate | 0.800 | 0.844 | 0.650 |
+| fusion_high_anchor | 0.810 | 0.859 | 0.700 |
+| fusion_minilm_edge | 0.810 | 0.859 | 0.700 |
+| fusion_tightest | 0.810 | 0.859 | 0.700 |
+
+Outcome:
+
+- Best variant remained `control_broad_off`.
+- Guardrail pass count: `1` (control only).
+- No B-mode variant matched control on both weighted and broad metrics.
+
+Close recommendation for this avenue:
+
+- Keep B available only as experimental mode.
+- Do not roll out broad reranking in production path at this time.
