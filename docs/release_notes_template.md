@@ -14,7 +14,7 @@ Use this template for `vX.Y.Z` tags.
 
 ## Docker / GHCR
 
-- Image: `ghcr.io/mitchins/arxiv-paper-mcp:<tag>`
+- Image: `ghcr.io/<owner>/arxiv-paper-mcp:<tag>`
 - Multi-arch: `linux/amd64`, `linux/arm64`
 
 ## Validation
