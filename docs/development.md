@@ -43,18 +43,33 @@ Container layout:
 - /data/arxiv.db: mounted SQLite database (read-only recommended)
 - /config: mounted runtime config (optional, read-only recommended)
 
-Compose environment knobs:
+Mount-first run example (no exported shell vars required):
+
+```bash
+docker run -d --name arxiv-paper-mcp \
+  -p 8000:8000 \
+  --mount type=bind,src=/absolute/path/to/arxiv.db,dst=/data/arxiv.db,readonly \
+  --mount type=bind,src=$PWD/config,dst=/config,readonly \
+  -e DB_PATH=/data/arxiv.db \
+  ghcr.io/mitchins/arxiv-paper-mcp:latest
+```
+
+Compose knobs (if using docker compose):
 
 - ARXIV_DB_HOST_PATH: host path to sqlite file
 - ARXIV_CONFIG_HOST_PATH: host path to config directory
 
-Example:
+Compose one-liner without export:
 
 ```bash
-export ARXIV_DB_HOST_PATH=/Volumes/data-2/deploy/arxiv-mcp/data/arxiv.db
-export ARXIV_CONFIG_HOST_PATH=$PWD/config
-docker compose build
-docker compose up -d --wait
+ARXIV_DB_HOST_PATH=/absolute/path/to/arxiv.db ARXIV_CONFIG_HOST_PATH=$PWD/config docker compose up -d --wait
+```
+
+Local source build (used by scripts/dev_up.sh):
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose.build.yml build
+docker compose -f docker-compose.yml -f docker-compose.build.yml up -d --wait
 ```
 
 ## Config and glossary behavior
