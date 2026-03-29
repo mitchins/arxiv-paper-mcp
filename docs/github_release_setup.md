@@ -26,12 +26,22 @@ The workflow publishes images to:
 
 - `ghcr.io/<owner>/arxiv-paper-mcp`
 
+Supported published platforms:
+
+- `linux/amd64`
+- `linux/arm64`
+
 Release flow:
 
 ```bash
 git tag v1.0.0
 git push origin v1.0.0
 ```
+
+Dry-run flow (manual dispatch from Actions UI):
+
+- Run `Publish Docker Image` on your branch before tagging.
+- Validate pull/run on your host architecture with the `sha-<commit>` tag.
 
 The workflow uses `GITHUB_TOKEN` with `packages: write`, so no extra registry
 secret is required for publishing to the same repository owner namespace.
