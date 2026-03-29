@@ -8,22 +8,43 @@ Pre-built images are published to GHCR for `linux/amd64` and `linux/arm64`.
 No build step is needed.
 
 ```bash
-export ARXIV_DB_HOST_PATH=/path/to/arxiv.db
-export ARXIV_CONFIG_HOST_PATH=$PWD/config
-docker compose pull          # pull latest from GHCR
-docker compose up -d --wait
+docker pull ghcr.io/mitchins/arxiv-paper-mcp:latest
+
+docker run -d --name arxiv-paper-mcp \
+  -p 8000:8000 \
+  --mount type=bind,src=/absolute/path/to/arxiv.db,dst=/data/arxiv.db,readonly \
+  --mount type=bind,src=$PWD/config,dst=/config,readonly \
+  -e DB_PATH=/data/arxiv.db \
+  ghcr.io/mitchins/arxiv-paper-mcp:latest
 ```
 
 Stop:
 
 ```bash
-bash scripts/dev_down.sh
+docker rm -f arxiv-paper-mcp
 ```
 
 Validate after first start:
 
 ```bash
 python scripts/smoke_runtime.py --endpoint http://127.0.0.1:8000 --iterations 7 --query "transformer" --search-timeout 180 --startup-wait 60 --warmup
+```
+
+Compose is still supported if preferred:
+
+```bash
+ARXIV_DB_HOST_PATH=/absolute/path/to/arxiv.db ARXIV_CONFIG_HOST_PATH=$PWD/config docker compose up -d --wait
+```
+
+### Runtime map
+
+```mermaid
+flowchart LR
+  A[Host arxiv.db] -->|bind ro| B[/data/arxiv.db]
+  C[Host config dir] -->|bind ro| D[/config]
+  B --> E[arxiv-paper-mcp container]
+  D --> E
+  E --> F[HTTP API :8000]
 ```
 
 To build from source (development), see [docs/development.md](docs/development.md)
