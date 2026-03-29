@@ -4,10 +4,6 @@ FastAPI + FastMCP search service over arXiv metadata using SQLite FTS5.
 
 ## What is included
 
-- Full-text search over title and abstract
-- Paper lookup by arXiv id
-- HTTP API endpoints: /health, /search, /paper
-- MCP endpoint: /mcp/
 
 ## Recommended run path (Docker)
 
@@ -19,8 +15,18 @@ export ARXIV_CONFIG_HOST_PATH=$PWD/config
 bash scripts/dev_up.sh
 ```
 
+Stop local Docker services:
+
+```bash
+bash scripts/dev_down.sh
+```
+
 Manual equivalent:
 
+Published image platforms:
+
+- `linux/amd64`
+- `linux/arm64`
 ```bash
 docker compose build
 docker compose up -d --wait
