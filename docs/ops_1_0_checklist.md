@@ -17,6 +17,7 @@ Reference: `docs/production_freeze_20260329.md`
 
 ```bash
 export ARXIV_DB_HOST_PATH=/Volumes/data-2/deploy/arxiv-mcp/data/arxiv.db
+export ARXIV_CONFIG_HOST_PATH=$PWD/config
 docker compose build
 ```
 
@@ -54,7 +55,7 @@ Preferred update mode for 1.0: explicit pull + recreate.
 
 ```bash
 docker compose pull
-docker compose up -d --force-recreate
+docker compose up -d --force-recreate --wait
 ```
 
 Post-update checks:
@@ -62,6 +63,16 @@ Post-update checks:
 1. `/health` returns `{"status":"ok"}`
 2. `scripts/smoke_runtime.py` passes
 3. Spot query sanity checks for known user workflows
+
+## Release Burn-down
+
+Before first `v1.0.0` release:
+
+- Docker build passes locally and in CI.
+- Lint + tests pass on pull requests and protected branches.
+- README quick-start and Docker deployment steps are verified from a clean clone.
+- GHCR publish workflow is ready and documented.
+- Frozen search configuration remains unchanged.
 
 Rollback:
 

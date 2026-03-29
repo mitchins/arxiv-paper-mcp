@@ -9,6 +9,7 @@ services:
       HOST: 0.0.0.0
       PORT: 8000
       DB_PATH: /data/arxiv.db
+      ARXIV_CONFIG_DIR: /config
       ARXIV_DB_IMMUTABLE: "1"
       ARXIV_DEV_MAX_LIMIT: "1000"
       ARXIV_ENABLE_JARGON_EXPANSION: "1"
@@ -20,6 +21,10 @@ services:
       - type: bind
         source: ${ARXIV_DB_HOST_PATH:-./data/arxiv.db}
         target: /data/arxiv.db
+        read_only: true
+      - type: bind
+        source: ${ARXIV_CONFIG_HOST_PATH:-./config}
+        target: /config
         read_only: true
     healthcheck:
       test: ["CMD", "curl", "-fsS", "http://127.0.0.1:8000/health"]

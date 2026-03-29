@@ -140,10 +140,17 @@ Naive metric in v1:
 
 This repo includes a Docker-first deployment baseline for 1.0.
 
+Persistent container layout:
+
+- `/app`: application code baked into the image
+- `/data`: persistent data mount for SQLite database files
+- `/config`: persistent config mount for `.env`, glossary, and future operator-managed config
+
 Build and run with compose:
 
 ```bash
 export ARXIV_DB_HOST_PATH=/Volumes/data-2/deploy/arxiv-mcp/data/arxiv.db
+export ARXIV_CONFIG_HOST_PATH=$PWD/config
 docker compose build
 docker compose up -d --wait
 ```
@@ -166,6 +173,18 @@ The compose file mounts a single SQLite file read-only into the container:
 
 This keeps development disk usage low by reusing your existing DB file.
 
+Optional persistent config mount:
+
+- Host path: `${ARXIV_CONFIG_HOST_PATH:-./config}`
+- Container path: `/config`
+
+Runtime config loading order:
+
+1. `/config/.env`
+2. repo-local `.env`
+
+If present, `/config/jargon_glossary.json` is preferred over the repo copy.
+
 ## Runtime smoke/perf check
 
 Run a quick runtime check (health + repeated search latency):
@@ -185,3 +204,29 @@ python scripts/smoke_runtime.py --endpoint http://127.0.0.1:8000 --iterations 7 
 For deployment, performance gates, and update runbook, see:
 
 - `docs/ops_1_0_checklist.md`
+
+## Development helper
+
+One-command Docker bring-up + smoke test:
+
+```bash
+export ARXIV_DB_HOST_PATH=/Volumes/data-2/deploy/arxiv-mcp/data/arxiv.db
+export ARXIV_CONFIG_HOST_PATH=$PWD/config
+bash scripts/dev_up.sh
+```
+
+## CI and release
+
+GitHub Actions now cover:
+
+- lint + tests on push/PR to `main` and `master`
+- Docker image build on push/PR to `main` and `master`
+- GHCR publish on version tags (`v*`) or manual dispatch
+
+Expected GHCR image name:
+
+- `ghcr.io/<owner>/arxiv-paper-mcp`
+
+Repo setup and release notes:
+
+- `docs/github_release_setup.md`

@@ -140,7 +140,9 @@ def _load_glossary_aliases(path: str | None) -> dict[str, list[str]]:
 
 
 def _default_glossary_path() -> str | None:
+    config_dir = Path(os.getenv("ARXIV_CONFIG_DIR", "/config"))
     candidates = [
+        config_dir / "jargon_glossary.json",
         _ROOT / "jargon_glossary.json",
         _ROOT / "benchmarks" / "queries" / "jargon_glossary.v2.json",
     ]

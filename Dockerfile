@@ -17,6 +17,7 @@ COPY . .
 ENV HOST=0.0.0.0 \
     PORT=8000 \
     DB_PATH=/data/arxiv.db \
+    ARXIV_CONFIG_DIR=/config \
     ARXIV_DB_IMMUTABLE=1 \
     ARXIV_ENABLE_JARGON_EXPANSION=1
 
