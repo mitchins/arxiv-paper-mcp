@@ -13,10 +13,13 @@ docker pull ghcr.io/mitchins/arxiv-paper-mcp:latest
 docker run -d --name arxiv-paper-mcp \
   -p 8000:8000 \
   --mount type=bind,src=/absolute/path/to/arxiv.db,dst=/data/arxiv.db,readonly \
-  --mount type=bind,src=$PWD/config,dst=/config,readonly \
   -e DB_PATH=/data/arxiv.db \
   ghcr.io/mitchins/arxiv-paper-mcp:latest
 ```
+
+The image already includes the default `jargon_glossary.json` under `/config`.
+Only mount `/config` if you want to supply a custom `.env` or override the
+glossary.
 
 Stop:
 
@@ -27,14 +30,18 @@ docker rm -f arxiv-paper-mcp
 Validate after first start:
 
 ```bash
-python scripts/smoke_runtime.py --endpoint http://127.0.0.1:8000 --iterations 7 --query "transformer" --search-timeout 180 --startup-wait 60 --warmup
+python3 scripts/smoke_runtime.py --endpoint http://127.0.0.1:8000 --iterations 7 --query "transformer" --search-timeout 180 --startup-wait 60 --warmup
 ```
 
 Compose is still supported if preferred:
 
 ```bash
-ARXIV_DB_HOST_PATH=/absolute/path/to/arxiv.db ARXIV_CONFIG_HOST_PATH=$PWD/config docker compose up -d --wait
+ARXIV_DB_HOST_PATH=/absolute/path/to/arxiv.db docker compose up -d --wait
 ```
+
+The stock compose file already mounts `./config` to `/config`. You can leave
+that directory empty, or point `ARXIV_CONFIG_HOST_PATH` somewhere else when you
+want to override `.env` or `jargon_glossary.json`.
 
 ### Search flow
 

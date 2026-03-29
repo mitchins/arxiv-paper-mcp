@@ -53,3 +53,19 @@ def test_normalize_query_with_config_glossary(tmp_path, monkeypatch) -> None:
     assert '"sae"' in query
     assert '"sparse autoencoder"' in query
     assert '"sparse autoencoders"' in query
+
+
+def test_normalize_query_falls_back_to_bundled_glossary_when_config_empty(tmp_path, monkeypatch) -> None:
+    config_dir = tmp_path / "config"
+    config_dir.mkdir()
+
+    monkeypatch.setenv("ARXIV_ENABLE_JARGON_EXPANSION", "1")
+    monkeypatch.delenv("ARXIV_JARGON_GLOSSARY", raising=False)
+    monkeypatch.setenv("ARXIV_CONFIG_DIR", str(config_dir))
+
+    normalization = reload_normalization()
+
+    query = normalization.normalize_query("sae")
+    assert '"sae"' in query
+    assert '"sparse autoencoder"' in query
+    assert '"sparse autoencoders"' in query
