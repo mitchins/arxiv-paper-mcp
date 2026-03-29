@@ -36,15 +36,20 @@ Compose is still supported if preferred:
 ARXIV_DB_HOST_PATH=/absolute/path/to/arxiv.db ARXIV_CONFIG_HOST_PATH=$PWD/config docker compose up -d --wait
 ```
 
-### Runtime map
+### Search flow
 
 ```mermaid
 flowchart LR
-  A["Host arxiv.db"] -->|"bind ro"| B["/data/arxiv.db"]
-  C["Host config dir"] -->|"bind ro"| D["/config"]
-  B --> E["arxiv-paper-mcp container"]
-  D --> E
-  E --> F["HTTP API :8000"]
+  Q["POST /search"] --> N["Normalize query"]
+  N --> J{"Jargon expansion enabled?"}
+  J -->|"yes"| E["Expand glossary terms"]
+  J -->|"no"| O["Use original query"]
+  E --> F["SQLite FTS5 BM25 retrieval"]
+  O --> F
+  F --> B{"Broad-query rerank enabled?"}
+  B -->|"no (v1.0 default)"| R["Return ranked results"]
+  B -->|"yes"| X["Apply broad-query rerank"]
+  X --> R
 ```
 
 To build from source (development), see [docs/development.md](docs/development.md)
