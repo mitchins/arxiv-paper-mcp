@@ -31,6 +31,18 @@ _BROAD_MINILM_MODEL = os.getenv(
     "ahmedfarazsyk/ms-marco-MiniLM-L6-v2-finetuned-scidocs",
 )
 _BROAD_MINILM_BATCH_SIZE = int(os.getenv("ARXIV_BROAD_MINILM_BATCH_SIZE", "32"))
+_BROAD_FUSION_WINDOW = int(os.getenv("ARXIV_BROAD_FUSION_WINDOW", "60"))
+_BROAD_FUSION_ALPHA = float(os.getenv("ARXIV_BROAD_FUSION_ALPHA", "0.72"))
+_BROAD_FUSION_BETA = float(os.getenv("ARXIV_BROAD_FUSION_BETA", "0.18"))
+_BROAD_FUSION_MINILM_WEIGHT = float(os.getenv("ARXIV_BROAD_FUSION_MINILM_WEIGHT", "0.10"))
+_BROAD_FUSION_ANCHOR_GAMMA = float(os.getenv("ARXIV_BROAD_FUSION_ANCHOR_GAMMA", "0.08"))
+_BROAD_FUSION_MISSING_ANCHOR_PENALTY = float(os.getenv("ARXIV_BROAD_FUSION_MISSING_ANCHOR_PENALTY", "0.08"))
+_BROAD_FUSION_MAX_JUMP = int(os.getenv("ARXIV_BROAD_FUSION_MAX_JUMP", "4"))
+_BROAD_FUSION_MAX_JUMP_CONFIDENT = int(os.getenv("ARXIV_BROAD_FUSION_MAX_JUMP_CONFIDENT", "9"))
+_BROAD_FUSION_CONFIDENCE = float(os.getenv("ARXIV_BROAD_FUSION_CONFIDENCE", "0.80"))
+_BROAD_FUSION_REQUIRE_ANCHOR_FOR_BIG_JUMP = os.getenv(
+    "ARXIV_BROAD_FUSION_REQUIRE_ANCHOR_FOR_BIG_JUMP", "1"
+).lower() in {"1", "true", "yes"}
 
 _MINILM_RERANKER: Any | None = None
 _MINILM_RERANKER_INIT_ATTEMPTED = False
@@ -39,6 +51,24 @@ _MINILM_RERANKER_INIT_ERROR: str | None = None
 _logger = logging.getLogger(__name__)
 
 _TEXT_TOKEN_RE = re.compile(r"[a-z0-9]+")
+_ANCHOR_STOPWORDS = {
+    "and",
+    "for",
+    "from",
+    "with",
+    "this",
+    "that",
+    "into",
+    "using",
+    "about",
+    "paper",
+    "model",
+    "models",
+    "study",
+    "based",
+    "under",
+    "over",
+}
 
 
 class PaperSearchService:
@@ -104,6 +134,22 @@ class PaperSearchService:
 
             msg = (
                 "Broad minilm reranker failed: "
+                f"reason={reason or 'unknown'}; "
+                f"model={_BROAD_MINILM_MODEL}; "
+                f"failure_mode={_BROAD_RERANK_FAILURE_MODE}"
+            )
+            if _BROAD_RERANK_FAILURE_MODE == "mmr":
+                _logger.warning("%s; explicit fallback to MMR", msg)
+                return _mmr_rerank(cleaned_query, pool, limit, lambda_diversity=_BROAD_MMR_LAMBDA)
+            raise RuntimeError(msg)
+
+        if _BROAD_RERANK_MODE == "minilm_fusion":
+            reranked, reason = _minilm_fusion_rerank(cleaned_query, pool, limit)
+            if reranked is not None:
+                return reranked
+
+            msg = (
+                "Broad minilm_fusion reranker failed: "
                 f"reason={reason or 'unknown'}; "
                 f"model={_BROAD_MINILM_MODEL}; "
                 f"failure_mode={_BROAD_RERANK_FAILURE_MODE}"
@@ -233,6 +279,16 @@ def _minilm_rerank(
     docs: list[SearchResult],
     top_k: int,
 ) -> tuple[list[SearchResult] | None, str | None]:
+    scores, err = _minilm_scores(cleaned_query, docs)
+    if scores is None:
+        return None, err
+
+    scored = list(zip(docs, scores))
+    scored.sort(key=lambda x: float(x[1]), reverse=True)
+    return [d for d, _ in scored[:top_k]], None
+
+
+def _minilm_scores(cleaned_query: str, docs: list[SearchResult]) -> tuple[list[float] | None, str | None]:
     reranker, init_err = _get_minilm_reranker()
     if reranker is None:
         return None, init_err or "reranker_not_initialized"
@@ -244,7 +300,7 @@ def _minilm_rerank(
 
     pairs = [(plain_query, f"{d.title}\n{d.snippet}") for d in docs]
     try:
-        scores = reranker.predict(
+        raw_scores = reranker.predict(
             pairs,
             batch_size=max(1, _BROAD_MINILM_BATCH_SIZE),
             show_progress_bar=False,
@@ -252,6 +308,113 @@ def _minilm_rerank(
     except Exception as exc:
         return None, f"predict_failed: {type(exc).__name__}: {exc}"
 
-    scored = list(zip(docs, scores))
-    scored.sort(key=lambda x: float(x[1]), reverse=True)
-    return [d for d, _ in scored[:top_k]], None
+    scores = [float(s) for s in raw_scores]
+    return scores, None
+
+
+def _normalize_scores(values: list[float]) -> list[float]:
+    if not values:
+        return []
+
+    lo = min(values)
+    hi = max(values)
+    if hi <= lo:
+        return [0.0 for _ in values]
+    span = hi - lo
+    return [(v - lo) / span for v in values]
+
+
+def _extract_anchor_terms(cleaned_query: str) -> set[str]:
+    terms = _query_terms_from_match(cleaned_query)
+    curated = {
+        "rlhf",
+        "dpo",
+        "rlaif",
+        "ppo",
+        "kto",
+        "rag",
+        "sae",
+        "circuits",
+        "alignment",
+        "interpretability",
+        "mechanistic",
+    }
+    anchors: set[str] = set()
+    for term in terms:
+        if term in _ANCHOR_STOPWORDS:
+            continue
+        if term in curated or (2 < len(term) <= 6 and not term.isdigit()):
+            anchors.add(term)
+    return anchors
+
+
+def _fuse_window_order(
+    base_scores: list[float],
+    minilm_scores: list[float],
+    anchor_scores: list[float],
+) -> list[int]:
+    fused_scores: list[float] = []
+    floor_pos: list[int] = []
+
+    for idx in range(len(base_scores)):
+        fused = (
+            _BROAD_FUSION_ALPHA * base_scores[idx]
+            + _BROAD_FUSION_BETA * (1.0 / (idx + 10.0))
+            + _BROAD_FUSION_MINILM_WEIGHT * minilm_scores[idx]
+            + _BROAD_FUSION_ANCHOR_GAMMA * anchor_scores[idx]
+        )
+
+        if anchor_scores[idx] <= 0.0:
+            fused -= _BROAD_FUSION_MISSING_ANCHOR_PENALTY
+
+        confident = minilm_scores[idx] >= _BROAD_FUSION_CONFIDENCE
+        if _BROAD_FUSION_REQUIRE_ANCHOR_FOR_BIG_JUMP:
+            confident = confident and anchor_scores[idx] > 0.0
+
+        max_jump = _BROAD_FUSION_MAX_JUMP_CONFIDENT if confident else _BROAD_FUSION_MAX_JUMP
+        floor_pos.append(max(0, idx - max_jump))
+        fused_scores.append(fused)
+
+    ordered: list[int] = []
+    remaining = set(range(len(base_scores)))
+    for pos in range(len(base_scores)):
+        eligible = [i for i in remaining if floor_pos[i] <= pos]
+        if eligible:
+            pick = max(eligible, key=lambda i: (fused_scores[i], -i))
+        else:
+            pick = min(remaining, key=lambda i: (floor_pos[i], -fused_scores[i], i))
+        ordered.append(pick)
+        remaining.remove(pick)
+
+    return ordered
+
+
+def _minilm_fusion_rerank(
+    cleaned_query: str,
+    docs: list[SearchResult],
+    top_k: int,
+) -> tuple[list[SearchResult] | None, str | None]:
+    window = max(1, min(len(docs), _BROAD_FUSION_WINDOW))
+    window_docs = docs[:window]
+
+    raw_scores, err = _minilm_scores(cleaned_query, window_docs)
+    if raw_scores is None:
+        return None, err
+
+    minilm = _normalize_scores(raw_scores)
+    base = [1.0 / (idx + 1.0) for idx in range(window)]
+
+    anchors = _extract_anchor_terms(cleaned_query)
+    anchor_scores: list[float] = []
+    for doc in window_docs:
+        if not anchors:
+            anchor_scores.append(0.0)
+            continue
+        terms = _doc_terms(doc)
+        hit_count = len(anchors & terms)
+        anchor_scores.append(hit_count / max(1, len(anchors)))
+
+    order = _fuse_window_order(base, minilm, anchor_scores)
+    fused_docs = [window_docs[i] for i in order]
+    fused_docs.extend(docs[window:])
+    return fused_docs[:top_k], None

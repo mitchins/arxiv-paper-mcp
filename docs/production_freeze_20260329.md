@@ -51,3 +51,19 @@ Treat this as current control. Any new broad-query strategy must match or beat:
 - `broad_macro_hit_rate >= 0.750`
 
 No rollout for a new mode unless both pass.
+
+## B-Mode Follow-up (Bounded MiniLM Fusion)
+
+Implemented new broad reranker mode:
+
+- `ARXIV_BROAD_RERANK_MODE=minilm_fusion`
+- Windowed rerank with lexical-anchor bonus and displacement caps.
+
+Evaluated on `2026-03-29` with default and stricter tuning variants.
+Both variants produced the same result:
+
+- `macro_hit_rate=0.810`
+- `weighted_hit_rate=0.859`
+- `broad_macro_hit_rate=0.700`
+
+Decision: keep this mode non-default and non-rollout (below guardrail).
