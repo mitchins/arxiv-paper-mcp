@@ -58,3 +58,4 @@ These are the frozen production defaults and should not be changed without re-ev
 - Operations and rollout checklist: docs/ops_1_0_checklist.md
 - Search freeze/baseline evidence: docs/production_freeze_20260329.md
 - GitHub release and branch protection setup: docs/github_release_setup.md
+- Release note template: docs/release_notes_template.md
