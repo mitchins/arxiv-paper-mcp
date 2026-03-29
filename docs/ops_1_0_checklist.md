@@ -16,6 +16,7 @@ Reference: `docs/production_freeze_20260329.md`
 1. Build image
 
 ```bash
+export ARXIV_DB_HOST_PATH=/Volumes/data-2/deploy/arxiv-mcp/data/arxiv.db
 docker compose build
 ```
 

@@ -143,6 +143,7 @@ This repo includes a Docker-first deployment baseline for 1.0.
 Build and run with compose:
 
 ```bash
+export ARXIV_DB_HOST_PATH=/Volumes/data-2/deploy/arxiv-mcp/data/arxiv.db
 docker compose build
 docker compose up -d
 ```
@@ -158,8 +159,12 @@ Default container profile keeps search on the frozen production path:
 - `ARXIV_ENABLE_JARGON_EXPANSION=1`
 - `ARXIV_ENABLE_BROAD_QUERY_ROUTING=0`
 
-The compose file mounts `./data` as read-only at `/data`, and the service uses
-`DB_PATH=/data/arxiv.db`.
+The compose file mounts a single SQLite file read-only into the container:
+
+- Host path: `${ARXIV_DB_HOST_PATH:-./data/arxiv.db}`
+- Container path: `/data/arxiv.db`
+
+This keeps development disk usage low by reusing your existing DB file.
 
 ## Runtime smoke/perf check
 
